@@ -16,3 +16,9 @@ html,
 body {
   height: 100%;
 }
+
+button[disabled] {
+  pointer-events: none;
+  opacity: 0.7;
+  background-color: #3f3f3f;
+}

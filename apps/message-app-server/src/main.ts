@@ -14,20 +14,20 @@ async function bootstrap() {
   app.setGlobalPrefix(globalPrefix);
   const port = process.env.PORT || 3000;
 
+  // allow cors - maybe not the best on prod ?
+  app.enableCors();
+
   // setup global validation
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
       whitelist: true,
-      exceptionFactory: (errors) =>
-        new BadRequestException('Validation failed'),
+      exceptionFactory: (errors) => new BadRequestException('Validation failed'),
     }),
   );
 
   await app.listen(port);
-  Logger.log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,
-  );
+  Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
 }
 
 bootstrap();

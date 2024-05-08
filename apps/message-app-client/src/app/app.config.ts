@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ApplicationConfig } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import {
   PreloadAllModules,
   provideRouter,
@@ -11,7 +12,6 @@ import {
 } from '@angular/router';
 import { ChatWebSocket } from './api';
 import { appRoutes } from './app.routes';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -30,6 +30,7 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions(),
     ),
     provideAnimations(),
-    ChatWebSocket, provideAnimationsAsync(),
+    provideAnimationsAsync(),
+    ChatWebSocket,
   ],
 };

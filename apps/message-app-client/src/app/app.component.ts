@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { AuthenticationService } from './authentication';
 
 @Component({
   selector: 'app-root',
@@ -12,4 +13,7 @@ import { RouterModule } from '@angular/router';
     }
   `,
 })
-export class AppComponent {}
+export class AppComponent {
+  // injected service to inicialize - load data from local storage
+  private AuthenticationService = inject(AuthenticationService);
+}

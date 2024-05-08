@@ -8,7 +8,7 @@ export abstract class StorageLocalStoreService<T> {
     this.defaultValues = defaultValues;
   }
 
-  saveData(data: T): void {
+  protected saveData(data: T): void {
     const savedData = this.getDataFromLocalStorage();
     const newData = { [this.storageKey]: data };
     const mergedData = JSON.stringify({ ...savedData, ...newData });
@@ -16,18 +16,18 @@ export abstract class StorageLocalStoreService<T> {
     localStorage.setItem(this.STORAGE_MAIN_KEY, mergedData);
   }
 
-  getData(): T {
+  protected getData(): T {
     const data = this.getDataFromLocalStorage();
     return data[this.storageKey] ?? this.defaultValues;
   }
 
-  removeData(): void {
+  protected removeData(): void {
     const data = this.getDataFromLocalStorage();
     const newData = { ...data, [this.storageKey]: null };
     localStorage.setItem(this.STORAGE_MAIN_KEY, JSON.stringify(newData));
   }
 
-  clearLocalStorage(): void {
+  protected clearLocalStorage(): void {
     localStorage.removeItem(this.STORAGE_MAIN_KEY);
   }
 

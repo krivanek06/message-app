@@ -2,9 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Subject, delay, map, startWith, switchMap, tap } from 'rxjs';
+import { Router } from '@angular/router';
+import { Subject, catchError, delay, map, of, startWith, switchMap, tap } from 'rxjs';
 import { UserApiService } from '../../api';
 import { AuthenticationService } from '../../authentication';
+import { DialogServiceUtil } from '../../utils';
 
 @Component({
   selector: 'app-login',
@@ -26,12 +28,9 @@ import { AuthenticationService } from '../../authentication';
           <!-- submit button -->
           <button
             (click)="onFormSubmit()"
+            [disabled]="isLoading()"
             type="button"
             class="bg-sky-300 hover:bg-sky-400 focus-within:bg-sky-400 text-white text-xl rounded-md min-w-[200px] max-w-[320px]"
-            [ngClass]="{
-              'pointer-events-none': isLoading(),
-              'bg-gray-400': isLoading()
-            }"
           >
             Login
           </button>
@@ -59,7 +58,9 @@ import { AuthenticationService } from '../../authentication';
 })
 export class LoginComponent {
   private authenticationService = inject(AuthenticationService);
-  private UserApiService = inject(UserApiService);
+  private userApiService = inject(UserApiService);
+  private dialogServiceUtil = inject(DialogServiceUtil);
+  private router = inject(Router);
 
   private createNewUserSubject$ = new Subject<string>();
 
@@ -67,20 +68,32 @@ export class LoginComponent {
 
   isLoading = toSignal(
     this.createNewUserSubject$.pipe(
+      tap(() => this.dialogServiceUtil.showNotificationBar('Creating user...')),
       switchMap((userData) =>
-        this.UserApiService.createUser(userData).pipe(
-          startWith(true), // Set loading to true
-          delay(3000), // Simulate network delay
-          map(() => false), // Set loading to false
+        this.userApiService.createUser(userData).pipe(
+          delay(2000), // Simulate network delay
           tap((user) => {
             console.log('user', user);
-            // todo: show notificaiton
+            // show notification
+            this.dialogServiceUtil.showNotificationBar('User created', 'success');
 
-            // todo: redirect into the app
+            // save user
+            this.authenticationService.setAuthenticatedUser(user);
+
+            // redirect into the app
+            this.router.navigate(['/chat-room']);
           }),
+          map(() => false), // Set loading to false
+          catchError((error) => {
+            console.error('error', error);
+            this.dialogServiceUtil.showNotificationBar('Error creating user', 'error');
+            return of(false);
+          }),
+          startWith(true), // Set loading to true
         ),
       ),
     ),
+    { initialValue: false },
   );
 
   usernameControl = new FormControl('', {
@@ -89,7 +102,6 @@ export class LoginComponent {
   });
 
   onFormSubmit(): void {
-    console.log('onFormSubmit', this.usernameControl.value);
     // mark as touched
     this.usernameControl.markAsTouched();
 

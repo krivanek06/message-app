@@ -15,6 +15,10 @@ export class AuthenticationService extends StorageLocalStoreService<ApplicationU
   constructor() {
     // Initialize the storage service with the key and default value
     super('authenticatedUser', null);
+
+    // console log changes
+    this.authenticatedUser$.subscribe(console.log);
+
     // Load the user from local storage
     this.authenticatedUser$.next(this.getData());
   }
@@ -25,5 +29,6 @@ export class AuthenticationService extends StorageLocalStoreService<ApplicationU
 
   setAuthenticatedUser(user: ApplicationUser | null) {
     this.authenticatedUser$.next(user);
+    this.saveData(user);
   }
 }

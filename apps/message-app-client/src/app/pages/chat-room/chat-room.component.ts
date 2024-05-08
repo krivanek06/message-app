@@ -12,4 +12,6 @@ import { Component } from '@angular/core';
     }
   `,
 })
-export class ChatRoomComponent {}
+export class ChatRoomComponent {
+  // private authenticationService = inject(AuthenticationService);
+}
