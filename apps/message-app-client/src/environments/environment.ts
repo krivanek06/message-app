@@ -4,6 +4,9 @@
 
 export const environment = {
   production: false,
+
+  serverAPIEndpoint: 'http://localhost:3000/api',
+  serverWSEndpoint: 'ws://localhost:3000',
 };
 
 /*

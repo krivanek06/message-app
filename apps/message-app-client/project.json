@@ -7,7 +7,9 @@
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:browser",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/message-app-client",
         "index": "apps/message-app-client/src/index.html",
@@ -15,8 +17,14 @@
         "polyfills": "apps/message-app-client/src/polyfills.ts",
         "tsConfig": "apps/message-app-client/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
-        "assets": ["apps/message-app-client/src/favicon.ico", "apps/message-app-client/src/assets"],
-        "styles": ["apps/message-app-client/src/styles.scss"],
+        "assets": [
+          "apps/message-app-client/src/favicon.ico",
+          "apps/message-app-client/src/assets"
+        ],
+        "styles": [
+          "@angular/material/prebuilt-themes/indigo-pink.css",
+          "apps/message-app-client/src/styles.scss"
+        ],
         "scripts": []
       },
       "configurations": {
@@ -73,12 +81,17 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["apps/message-app-client/**/*.ts", "apps/message-app-client/**/*.html"]
+        "lintFilePatterns": [
+          "apps/message-app-client/**/*.ts",
+          "apps/message-app-client/**/*.html"
+        ]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "apps/message-app-client/jest.config.ts",
         "passWithNoTests": true

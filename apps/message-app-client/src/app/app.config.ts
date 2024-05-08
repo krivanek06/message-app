@@ -9,8 +9,9 @@ import {
   withPreloading,
   withViewTransitions,
 } from '@angular/router';
+import { ChatWebSocket } from './api';
 import { appRoutes } from './app.routes';
-// import { provideAnimationsAsync } from '@angular/platform-browser/animations-async';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -29,5 +30,6 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions(),
     ),
     provideAnimations(),
+    ChatWebSocket, provideAnimationsAsync(),
   ],
 };
