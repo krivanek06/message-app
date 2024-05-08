@@ -1,0 +1,31 @@
+{
+  "name": "message-app-server",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/message-app-server/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "message-app-server:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "message-app-server:build:development"
+        },
+        "production": {
+          "buildTarget": "message-app-server:build:production"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/message-app-server/jest.config.ts"
+      }
+    }
+  }
+}
