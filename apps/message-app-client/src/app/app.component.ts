@@ -1,10 +1,15 @@
 import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'message-app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterModule],
+  template: `<router-outlet></router-outlet> `,
+  styles: `
+    :host {
+      display: block;
+    }
+  `,
 })
-export class AppComponent {
-  title = 'message-app-client';
-}
+export class AppComponent {}

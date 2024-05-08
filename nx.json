@@ -49,8 +49,19 @@
       "linter": "eslint",
       "unitTestRunner": "jest"
     },
-    "@nrwl/angular:component": {
-      "style": "scss"
+    "@nx/angular:component": {
+      "style": "scss",
+      "changeDetection": "OnPush",
+      "displayBlock": true,
+      "inlineStyle": true,
+      "standalone": true,
+      "inlineTemplate": true
+    },
+    "@nx/angular:directive": {
+      "standalone": true
+    },
+    "@nx/angular:pipe": {
+      "standalone": true
     }
   },
   "defaultProject": "message-app-client",

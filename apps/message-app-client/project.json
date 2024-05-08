@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "apps/message-app-client/src",
-  "prefix": "message-app",
+  "prefix": "app",
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:browser",
@@ -15,10 +15,7 @@
         "polyfills": "apps/message-app-client/src/polyfills.ts",
         "tsConfig": "apps/message-app-client/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
-        "assets": [
-          "apps/message-app-client/src/favicon.ico",
-          "apps/message-app-client/src/assets"
-        ],
+        "assets": ["apps/message-app-client/src/favicon.ico", "apps/message-app-client/src/assets"],
         "styles": ["apps/message-app-client/src/styles.scss"],
         "scripts": []
       },
@@ -76,10 +73,7 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": [
-          "apps/message-app-client/**/*.ts",
-          "apps/message-app-client/**/*.html"
-        ]
+        "lintFilePatterns": ["apps/message-app-client/**/*.ts", "apps/message-app-client/**/*.html"]
       }
     },
     "test": {
