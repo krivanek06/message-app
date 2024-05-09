@@ -10,15 +10,16 @@ body {
   scroll-behavior: smooth;
   margin: 0;
   font-family: system-ui, Poppins, sans-serif;
-}
-
-html,
-body {
-  height: 100%;
+  @apply text-gray-800;
 }
 
 button[disabled] {
   pointer-events: none;
   opacity: 0.7;
   background-color: #3f3f3f;
+}
+
+.g-skeleton {
+  @apply rounded-lg animate-pulse;
+  background-color: #3f3f3f !important;
 }

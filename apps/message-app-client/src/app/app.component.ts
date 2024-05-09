@@ -6,7 +6,7 @@ import { AuthenticationService } from './authentication';
   selector: 'app-root',
   standalone: true,
   imports: [RouterModule],
-  template: `<router-outlet></router-outlet> `,
+  template: ` <router-outlet></router-outlet> `,
   styles: `
     :host {
       display: block;

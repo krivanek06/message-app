@@ -50,7 +50,7 @@ export class AppDatabaseService {
    * @param offset - offset of the messages
    * @returns - list of messages
    */
-  async getMessages(limit: number, offset: number = 20): Promise<MessageChat[]> {
+  async getMessages(offset: number, limit: number = 20): Promise<MessageChat[]> {
     return this.storedMessages.slice(offset, offset + limit).map((message) => {
       const user = this.storedUsers.get(message.userId);
       return {
@@ -72,6 +72,7 @@ export class AppDatabaseService {
       userId: Math.random().toString(36).substring(7), // random ID
       isActive: true,
       lastActiveTimestamp: Date.now(),
+      color: `#${Math.floor(Math.random() * 16777215).toString(16)}`, // random color
     } satisfies ApplicationUser;
 
     // save user

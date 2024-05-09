@@ -37,4 +37,8 @@ export class ApplicationUserDTO implements ApplicationUser {
   @IsString()
   @IsDate()
   lastActiveTimestamp: number;
+
+  @IsNotEmpty()
+  @IsString()
+  color: string;
 }

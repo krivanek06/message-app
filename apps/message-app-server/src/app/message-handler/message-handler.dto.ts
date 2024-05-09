@@ -18,11 +18,11 @@ export class MessageCreateDTO implements MessageCreate {
  * DTO for searching past messages
  */
 export class MessageSearchDTO {
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   limit: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsNumber()
-  offset?: number;
+  offset: number;
 }

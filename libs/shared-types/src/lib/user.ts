@@ -15,4 +15,9 @@ export type ApplicationUser = ApplicationUserCreate & {
    * timestamp when the user was last active
    */
   lastActiveTimestamp: number;
+
+  /**
+   * color to user as background in messages
+   */
+  color: string;
 };

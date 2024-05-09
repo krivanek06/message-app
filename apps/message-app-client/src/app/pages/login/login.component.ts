@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -55,6 +55,7 @@ import { DialogServiceUtil } from '../../utils';
       display: block;
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
   private authenticationService = inject(AuthenticationService);

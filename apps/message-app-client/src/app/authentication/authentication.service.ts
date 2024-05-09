@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, computed } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ApplicationUser } from '@shared-types';
 import { BehaviorSubject } from 'rxjs';
@@ -11,6 +11,7 @@ export class AuthenticationService extends StorageLocalStoreService<ApplicationU
   private authenticatedUser$ = new BehaviorSubject<ApplicationUser | null>(null);
 
   authenticatedUser = toSignal(this.authenticatedUser$);
+  authenticatedUserData = computed(() => this.authenticatedUser()!);
 
   constructor() {
     // Initialize the storage service with the key and default value

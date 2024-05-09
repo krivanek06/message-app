@@ -5,7 +5,7 @@ import { AppDatabaseService } from '../database';
 import { ApplicationUserCreateDTO, ApplicationUserDTO } from '../user-handler/user-handler.dto';
 import { MessageCreateDTO } from './message-handler.dto';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: true })
 export class MessageListenerService implements OnModuleInit {
   constructor(private appDatabaseService: AppDatabaseService) {}
 
