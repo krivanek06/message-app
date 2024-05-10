@@ -1,4 +1,5 @@
 import { MessageCreate } from '@shared-types';
+import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 /**
@@ -20,9 +21,15 @@ export class MessageCreateDTO implements MessageCreate {
 export class MessageSearchDTO {
   @IsOptional()
   @IsNumber()
-  limit: number;
+  @Transform(({ value }) => {
+    return Number(value);
+  })
+  limit?: number;
 
   @IsNotEmpty()
   @IsNumber()
+  @Transform(({ value }) => {
+    return Number(value);
+  })
   offset: number;
 }

@@ -15,7 +15,6 @@ export class MessageHandlerController {
     }),
   )
   async getMessagesAll(@Query() query: MessageSearchDTO): Promise<MessageChat[]> {
-    console.log('getMessagesAll');
-    return this.appDatabaseService.getMessages(query.limit, query.offset);
+    return this.appDatabaseService.getMessages(query.offset, query.limit);
   }
 }

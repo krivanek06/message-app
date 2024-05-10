@@ -1,17 +1,25 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { catchError, delay, map, of, startWith, tap } from 'rxjs';
 import { ChatWebSocket, MessageApiService } from '../../../api';
 import { AuthenticationService } from '../../../authentication';
-import { DefaultImgDirective, DialogServiceUtil, RangeDirective } from '../../../utils';
+import {
+  DefaultImgDirective,
+  DialogServiceUtil,
+  RangeDirective,
+  ScrollNearEndDirective,
+} from '../../../utils';
 
 @Component({
   selector: 'app-chat-feature',
   standalone: true,
-  imports: [CommonModule, DefaultImgDirective, RangeDirective, ReactiveFormsModule],
+  imports: [CommonModule, DefaultImgDirective, RangeDirective, ReactiveFormsModule, ScrollNearEndDirective],
   template: `
     <!-- chat messages -->
     <div
+      appScrollNearEnd
       class="px-4 py-6 border-gray-300 h-full rounded-lg border-2 overflow-scroll flex flex-col-reverse gap-y-6"
     >
       <!-- input message -->
@@ -29,28 +37,34 @@ import { DefaultImgDirective, DialogServiceUtil, RangeDirective } from '../../..
       </div>
 
       <!-- messages wrapper -->
-      <div *ngRange="10" class="flex items-start gap-3">
-        <!-- user -->
-        <img appDefaultImg alt="user image" [src]="authUser().imageUrl" class="w-8 h-8 rounded-full" />
+      @if (!displayedMessages().loading) {
+        @for (item of displayedMessages().data; track item.messageId) {
+          <div class="flex items-start gap-3">
+            <!-- user -->
+            <img appDefaultImg alt="user image" [src]="item.user.imageUrl" class="w-8 h-8 rounded-full" />
 
+            <div
+              class="w-9/12 p-4 rounded-tr-3xl rounded-br-3xl rounded-bl-3xl"
+              [style.background-color]="item.user.color"
+            >
+              <!-- messages metadata -->
+              <div class="flex justify-between mb-2">
+                <span class="font-bold"> {{ item.user.username }} </span>
+                <span> {{ item.timestamp | date: 'HH:mm, MMMM d, y' }} </span>
+              </div>
+              <!-- messages -->
+              <div>
+                {{ item.content }}
+              </div>
+            </div>
+          </div>
+        }
+      } @else {
         <div
-          class="w-9/12 p-4 rounded-tr-3xl rounded-br-3xl rounded-bl-3xl"
-          [style.background-color]="authUser().color"
-        >
-          <!-- messages metadata -->
-          <div class="flex justify-between mb-2">
-            <span class="font-bold"> Edaurd Krivanek </span>
-            <span> 12.2.1223 12:12:12 </span>
-          </div>
-          <!-- messages -->
-          <div>
-            lorem ipsum dolor sit amet lorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor
-            sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum
-            dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem
-            ipsum dolor sit amet
-          </div>
-        </div>
-      </div>
+          *ngRange="10"
+          class="g-skeleton min-h-[80px] w-9/12 rounded-tr-3xl rounded-br-3xl rounded-bl-3xl"
+        ></div>
+      }
     </div>
   `,
   styles: `
@@ -67,6 +81,35 @@ export class ChatFeatureComponent {
   private authenticationService = inject(AuthenticationService);
 
   authUser = this.authenticationService.authenticatedUserData;
+
+  displayedMessages = toSignal(
+    this.messageApiService.getMessagesAll(0).pipe(
+      delay(2000), // simulate loading
+      tap(console.log),
+      map((data) => ({
+        data,
+        loading: false,
+      })),
+      startWith({
+        data: [],
+        loading: true,
+      }),
+      catchError((err) => {
+        console.log(err);
+        this.dialogServiceUtil.showNotificationBar('Error loading messages', 'error');
+        return of({
+          data: [],
+          loading: false,
+        });
+      }),
+    ),
+    {
+      initialValue: {
+        data: [],
+        loading: true,
+      },
+    },
+  );
 
   messageControl = new FormControl('', {
     validators: [Validators.required, Validators.minLength(1), Validators.maxLength(1000)],

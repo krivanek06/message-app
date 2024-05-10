@@ -29,6 +29,7 @@ export class AppDatabaseService {
     const storedMessage = {
       ...message,
       timestamp: Date.now(),
+      messageId: Math.random().toString(36).substring(7), // random ID
     } satisfies MessageStored;
 
     // save message

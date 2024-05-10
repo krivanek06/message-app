@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppDatabaseService } from '../database';
+import { AppDatabaseModule } from '../database';
 import { MessageHandlerController } from './message-handler.controller';
 import { MessageListenerService } from './message-listener.service';
 
 @Module({
-  providers: [MessageListenerService, AppDatabaseService],
+  imports: [AppDatabaseModule],
+  providers: [MessageListenerService],
   controllers: [MessageHandlerController],
 })
 export class MessageHandlerModule {}

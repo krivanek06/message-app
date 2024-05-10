@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AppDatabaseService } from '../database';
+import { AppDatabaseModule } from '../database';
 import { UserHandlerController } from './user-handler.controller';
 
 @Module({
-  providers: [AppDatabaseService],
+  imports: [AppDatabaseModule],
   controllers: [UserHandlerController],
 })
 export class UserHandlerModule {}

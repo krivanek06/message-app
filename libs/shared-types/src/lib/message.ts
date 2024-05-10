@@ -12,6 +12,7 @@ export type MessageCreate = {
 };
 
 export type MessageStored = MessageCreate & {
+  messageId: string;
   /**
    * timestamp when the message was created
    */
