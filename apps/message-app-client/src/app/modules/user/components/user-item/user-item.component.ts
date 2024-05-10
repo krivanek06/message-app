@@ -1,14 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { ApplicationUser, MessageStored } from '@shared-types';
-import { DefaultImgDirective } from '../../../../utils';
+import { ClickableDirective, DefaultImgDirective } from '../../../../utils';
 
 @Component({
   selector: 'app-user-item',
   standalone: true,
-  imports: [CommonModule, DefaultImgDirective],
+  imports: [CommonModule, DefaultImgDirective, ClickableDirective],
   template: `
-    <div class="flex items-start gap-2">
+    <div class="flex items-start gap-2 px-3 py-1">
       <!-- user image -->
       <img appDefaultImg alt="user image" [src]="userData().imageUrl" class="w-8 h-8 rounded-full" />
 
@@ -40,6 +40,13 @@ import { DefaultImgDirective } from '../../../../utils';
       display: block;
     }
   `,
+  hostDirectives: [
+    {
+      directive: ClickableDirective,
+      inputs: ['clickable'],
+      outputs: ['itemClicked'],
+    },
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserItemComponent {

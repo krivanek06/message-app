@@ -5,6 +5,12 @@
 
 // fonts
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,700,900');
+
+:root {
+  --disable-color: #5c5c5c;
+  --hover-color: rgba(0, 0, 0, 0.15);
+}
+
 body {
   height: 100%;
   scroll-behavior: smooth;
@@ -16,10 +22,26 @@ body {
 button[disabled] {
   pointer-events: none;
   opacity: 0.7;
-  background-color: #3f3f3f;
+  background-color: var(--disable-color);
 }
 
 .g-skeleton {
   @apply animate-pulse;
-  background-color: #5c5c5c !important;
+  background-color: var(--disable-color) !important;
+}
+
+.g-clickable-hover-color {
+  @apply hover:scale-95 focus:scale-95 active:scale-95 duration-500 transition-all cursor-pointer ease-in-out rounded-lg;
+
+  &:hover {
+    background: var(--hover-color) !important;
+  }
+
+  &:active {
+    background: var(--hover-color) !important;
+  }
+
+  &:focus {
+    background: var(--hover-color) !important;
+  }
 }

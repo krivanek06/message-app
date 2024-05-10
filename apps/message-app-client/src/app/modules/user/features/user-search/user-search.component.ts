@@ -27,8 +27,13 @@ import { UserItemComponent } from '../../components';
     <!-- results -->
     <div class="mt-10 flex flex-col gap-y-3 pl-4">
       @for (item of searchedUsers(); track item.userId) {
-        <div class="border-b border-gray-400 pb-3">
-          <app-user-item [userData]="item" [lastMessage]="item.lastMessage" />
+        <div class="border-b border-gray-400 pb-1">
+          <app-user-item
+            (itemClicked)="onUserClick(item)"
+            [clickable]="true"
+            [userData]="item"
+            [lastMessage]="item.lastMessage"
+          />
         </div>
       }
     </div>
@@ -68,6 +73,11 @@ export class UserSearchComponent implements ControlValueAccessor {
 
   onChange: (value: ApplicationUser) => void = () => {};
   onTouched = () => {};
+
+  onUserClick(user: ApplicationUser) {
+    console.log('UserSearchComponent -> onUserClick -> user', user);
+    this.onChange(user);
+  }
 
   // ignore write from parent
   writeValue(obj: any): void {}
