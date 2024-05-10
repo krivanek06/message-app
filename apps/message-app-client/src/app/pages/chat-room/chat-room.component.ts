@@ -2,17 +2,17 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AuthenticationService } from '../../authentication';
 import { ChatFeatureComponent } from '../../modules/chat';
-import { UserItemComponent } from '../../modules/user';
+import { UserSearchComponent } from '../../modules/user/features';
 
 @Component({
   selector: 'app-chat-room',
   standalone: true,
-  imports: [CommonModule, UserItemComponent, ChatFeatureComponent],
+  imports: [CommonModule, ChatFeatureComponent, UserSearchComponent],
   template: `
     <section class="grid grid-cols-3 h-screen">
       <!-- users -->
-      <div class="p-4 bg-gray-500 pt-10 xl:pt-[100px]">
-        <app-user-item [userData]="authUser()" />
+      <div class="p-4 bg-gray-500 pt-10 xl:pt-[100px] pr-14">
+        <app-user-search />
       </div>
 
       <!-- chat -->

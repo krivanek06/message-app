@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { ApplicationUser, MessageStored } from '@shared-types';
-import { DefaultImgDirective } from '../../../utils';
+import { DefaultImgDirective } from '../../../../utils';
 
 @Component({
   selector: 'app-user-item',
@@ -16,7 +16,7 @@ import { DefaultImgDirective } from '../../../utils';
       <div class="flex flex-col">
         <!-- user name -->
         <div class="font-bold flex gap-2 items-center text-base">
-          <div>{{ userData().username }}</div>
+          <div [style.color]="userData().color">{{ userData().username }}</div>
           <div
             class="w-3 h-3 rounded-full"
             [ngClass]="{
@@ -28,8 +28,8 @@ import { DefaultImgDirective } from '../../../utils';
 
         <!-- last message -->
         @if (lastMessage(); as lastMessage) {
-          <div class="line-clamp-3 text-gray-800">
-            {{ lastMessage }}
+          <div class="line-clamp-2 text-gray-800">
+            {{ lastMessage.content }}
           </div>
         }
       </div>
@@ -44,5 +44,5 @@ import { DefaultImgDirective } from '../../../utils';
 })
 export class UserItemComponent {
   userData = input.required<ApplicationUser>();
-  lastMessage = input<MessageStored | null>(null);
+  lastMessage = input<MessageStored | undefined>(undefined);
 }

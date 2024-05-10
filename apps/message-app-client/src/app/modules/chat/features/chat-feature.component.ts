@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageChat } from '@shared-types';
-import { Subject, catchError, combineLatest, delay, map, of, scan, startWith, switchMap, tap } from 'rxjs';
+import { Subject, catchError, combineLatest, delay, map, of, scan, startWith, switchMap } from 'rxjs';
 import { ChatWebSocket, MessageApiService } from '../../../api';
 import { AuthenticationService } from '../../../authentication';
 import {
@@ -134,7 +134,6 @@ export class ChatFeatureComponent {
    */
   displayedMessages = toSignal(
     combineLatest([this.loadedMessages$, this.newIncomingMessage$]).pipe(
-      tap(([loaded, incoming]) => console.log('loaded', loaded, 'incoming', incoming)),
       map(([loaded, incoming]) => ({
         data: [...incoming, ...loaded.data],
         loading: loaded.loading,

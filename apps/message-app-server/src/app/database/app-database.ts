@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   ApplicationUser,
   ApplicationUserCreate,
+  ApplicationUserSearch,
   MessageChat,
   MessageCreate,
   MessageStored,
@@ -117,11 +118,20 @@ export class AppDatabaseService {
    *
    * @returns - list of last active users
    */
-  async getLastActiveUsers(): Promise<ApplicationUser[]> {
+  async getLastActiveUsers(): Promise<ApplicationUserSearch[]> {
     return Array.from(this.storedUsers.values())
       .filter((user) => user.isActive)
       .sort((a, b) => b.lastActiveTimestamp - a.lastActiveTimestamp)
-      .slice(0, 10);
+      .slice(0, 10)
+      .map(
+        (user) =>
+          ({
+            ...user,
+            lastMessage: this.storedMessages
+              .filter((message) => message.userId === user.userId)
+              .sort((a, b) => b.timestamp - a.timestamp)[0],
+          }) satisfies ApplicationUserSearch,
+      );
   }
 
   /**
@@ -129,7 +139,17 @@ export class AppDatabaseService {
    * @param username - username to search for
    * @returns - user with the username
    */
-  async getUserByUsername(username: string): Promise<ApplicationUser[]> {
-    return Array.from(this.storedUsers.values()).filter((user) => user.username.startsWith(username));
+  async getUserByUsername(username: string): Promise<ApplicationUserSearch[]> {
+    return Array.from(this.storedUsers.values())
+      .filter((user) => user.username.toLocaleLowerCase().startsWith(username.toLocaleLowerCase()))
+      .map(
+        (user) =>
+          ({
+            ...user,
+            lastMessage: this.storedMessages
+              .filter((message) => message.userId === user.userId)
+              .sort((a, b) => b.timestamp - a.timestamp)[0],
+          }) satisfies ApplicationUserSearch,
+      );
   }
 }

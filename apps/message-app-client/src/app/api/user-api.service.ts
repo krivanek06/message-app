@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { faker } from '@faker-js/faker';
-import { ApplicationUser, ApplicationUserCreate } from '@shared-types';
+import { ApplicationUser, ApplicationUserCreate, ApplicationUserSearch } from '@shared-types';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -19,11 +19,11 @@ export class UserApiService {
     return this.http.post<ApplicationUser>(`${environment.serverAPIEndpoint}/user`, data);
   }
 
-  getLastActiveUsers(): Observable<ApplicationUser[]> {
-    return this.http.get<ApplicationUser[]>(`${environment.serverAPIEndpoint}/user/last-active`);
+  getLastActiveUsers() {
+    return this.http.get<ApplicationUserSearch[]>(`${environment.serverAPIEndpoint}/user/last-active`);
   }
 
-  getUsersByUsername(search: string): Observable<ApplicationUser[]> {
-    return this.http.get<ApplicationUser[]>(`${environment.serverAPIEndpoint}/user?search=${search}`);
+  getUsersByUsername(search: string) {
+    return this.http.get<ApplicationUserSearch[]>(`${environment.serverAPIEndpoint}/user?search=${search}`);
   }
 }
