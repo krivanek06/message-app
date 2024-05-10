@@ -25,6 +25,7 @@ export class AppController implements OnModuleInit {
 
       // add user to the DB
       const createdUser = await this.appDatabaseService.addUser(data);
+
       // save user
       appUsers.push(createdUser);
     }
@@ -34,7 +35,7 @@ export class AppController implements OnModuleInit {
       for (const user of appUsers) {
         const data = {
           userId: user.userId,
-          content: faker.lorem.sentence(),
+          content: faker.lorem.paragraph({ min: 1, max: 3 }),
         } satisfies MessageCreate;
 
         // add message to the DB

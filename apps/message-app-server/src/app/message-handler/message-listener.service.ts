@@ -10,7 +10,7 @@ export class MessageListenerService implements OnModuleInit {
   constructor(private appDatabaseService: AppDatabaseService) {}
 
   @WebSocketServer()
-  server: Server;
+  server!: Server;
 
   onModuleInit() {
     this.server.on('connection', (socket) => {
@@ -40,6 +40,9 @@ export class MessageListenerService implements OnModuleInit {
   async onNewMessage(@MessageBody() message: MessageCreateDTO) {
     // add message to the DB
     const newMessage = await this.appDatabaseService.addMessage(message);
+
+    // log total messages
+    console.log('total messages', (await this.appDatabaseService.getMessages(0, 99999)).length);
 
     // notify all clients
     this.server.emit('onMessage', newMessage);

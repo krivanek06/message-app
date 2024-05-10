@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { ApplicationUserCreate, MessageCreate } from '@shared-types';
+import { ApplicationUserCreate, MessageChat, MessageCreate } from '@shared-types';
 import { Socket } from 'ngx-socket-io';
-import { bufferTime, tap } from 'rxjs';
+import { Observable, bufferTime, filter, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable()
@@ -27,11 +27,12 @@ export class ChatWebSocket extends Socket {
     this.emit('leaveChat', user);
   }
 
-  listenOnNewMessage() {
-    this.fromEvent('newMessage').pipe(
+  listenOnNewMessage(): Observable<MessageChat[]> {
+    return this.fromEvent<MessageChat>('onMessage').pipe(
+      tap((x) => console.log('onMessage', x)),
       // buffer messages for 1 second - to avoid spamming
-      bufferTime(1000),
-      tap((x) => console.log('newMessage', x)),
+      bufferTime(500),
+      filter((x) => x.length > 0),
     );
   }
 

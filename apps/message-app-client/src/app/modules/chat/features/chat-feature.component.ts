@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageChat } from '@shared-types';
-import { Subject, catchError, delay, map, of, scan, startWith, switchMap } from 'rxjs';
+import { Subject, catchError, combineLatest, delay, map, of, scan, startWith, switchMap, tap } from 'rxjs';
 import { ChatWebSocket, MessageApiService } from '../../../api';
 import { AuthenticationService } from '../../../authentication';
 import {
@@ -36,6 +36,7 @@ import {
           placeholder="Enter message and press enter to send"
           class="border-2 border-gray-300 rounded-md p-2 "
         ></textarea>
+        <span class="text-sm text-gray-400">chars: {{ messageControl.value.length }} / 1000 </span>
       </div>
 
       <!-- messages wrapper -->
@@ -46,16 +47,16 @@ import {
           <img appDefaultImg alt="user image" [src]="item.user?.imageUrl" class="w-8 h-8 rounded-full" />
 
           <div
-            class="w-9/12 p-4 rounded-tr-3xl rounded-br-3xl rounded-bl-3xl"
+            class="w-9/12 p-4 rounded-tr-3xl rounded-br-3xl rounded-bl-3xl border border-gray-200"
             [style.background-color]="item.user?.color"
           >
             <!-- messages metadata -->
             <div class="flex justify-between mb-2">
-              <span class="font-bold"> {{ item.user?.username }} </span>
+              <span class="font-bold"> {{ item.user?.username ?? 'Unknown' }} </span>
               <span> {{ item.timestamp | date: 'HH:mm, MMMM d, y' }} </span>
             </div>
             <!-- messages -->
-            <div>
+            <div class="whitespace-pre-wrap">
               {{ item.content }}
             </div>
           </div>
@@ -86,47 +87,63 @@ export class ChatFeatureComponent {
   authUser = this.authenticationService.authenticatedUserData;
 
   /**
-   * subject to emit new scroll event
+   * subject to emit new scroll event happens with how many items are displayed
    */
-  private newEndScrollEmit$ = new Subject<void>();
+  private scrollNewEndOffset$ = new Subject<number>();
 
-  displayedMessages = toSignal(
-    this.newEndScrollEmit$.pipe(
-      startWith(null),
-      switchMap(() =>
-        this.messageApiService.getMessagesAll(0).pipe(
-          // stop loading
-          map((data) => ({ data, loading: false })),
-          // simulate loading
-          delay(2000),
-          catchError((err) => {
-            console.log(err);
-            this.dialogServiceUtil.showNotificationBar('Error loading messages', 'error');
-            return of({ data: [], loading: false });
-          }),
-          // show loading skeleton while loading data from API
-          startWith({ data: [], loading: true }),
-        ),
-      ),
-      // remember previous values and add new ones
-      scan(
-        (acc, curr) => ({
-          data: [...acc.data, ...curr.data],
-          loading: curr.loading,
-          offset: acc.offset + 1,
+  /**
+   * observable to load messages from API based on scroll position
+   */
+  private loadedMessages$ = this.scrollNewEndOffset$.pipe(
+    startWith(0),
+    switchMap((offset) =>
+      this.messageApiService.getMessagesAll(offset).pipe(
+        // stop loading
+        map((data) => ({ data, loading: false })),
+        // simulate loading
+        delay(2000),
+        catchError((err) => {
+          console.log(err);
+          this.dialogServiceUtil.showNotificationBar('Error loading messages', 'error');
+          return of({ data: [], loading: false });
         }),
-        {
-          data: [] as MessageChat[],
-          loading: true,
-          offset: 0,
-        },
+        // show loading skeleton while loading data from API
+        startWith({ data: [], loading: true }),
       ),
+    ),
+    // remember previous values and add new ones
+    scan(
+      (acc, curr) => ({
+        data: [...acc.data, ...curr.data],
+        loading: curr.loading,
+      }),
+      {
+        data: [] as MessageChat[],
+        loading: true,
+      },
+    ),
+  );
+
+  /**
+   * observable to listen on new incoming messages
+   */
+  private newIncomingMessage$ = this.chatWebSocket.listenOnNewMessage().pipe(startWith([] as MessageChat[]));
+
+  /**
+   * combine latest loaded messages and new incoming messages and display on UI
+   */
+  displayedMessages = toSignal(
+    combineLatest([this.loadedMessages$, this.newIncomingMessage$]).pipe(
+      tap(([loaded, incoming]) => console.log('loaded', loaded, 'incoming', incoming)),
+      map(([loaded, incoming]) => ({
+        data: [...incoming, ...loaded.data],
+        loading: loaded.loading,
+      })),
     ),
     {
       initialValue: {
         data: [] as MessageChat[],
         loading: true,
-        offset: 0,
       },
     },
   );
@@ -143,6 +160,7 @@ export class ChatFeatureComponent {
     this.messageControl.markAllAsTouched();
     if (this.messageControl.invalid) {
       this.dialogServiceUtil.showNotificationBar('Message is required, min 1 char, max 1000', 'error');
+      return;
     }
 
     // submit message
@@ -156,6 +174,6 @@ export class ChatFeatureComponent {
   }
 
   onNearEndEmit() {
-    this.newEndScrollEmit$.next();
+    this.scrollNewEndOffset$.next(this.displayedMessages().data.length);
   }
 }

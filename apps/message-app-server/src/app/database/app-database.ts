@@ -52,13 +52,19 @@ export class AppDatabaseService {
    * @returns - list of messages
    */
   async getMessages(offset: number, limit: number = 20): Promise<MessageChat[]> {
-    return this.storedMessages.slice(offset, offset + limit).map((message) => {
-      const user = this.storedUsers.get(message.userId);
-      return {
-        ...message,
-        user,
-      } satisfies MessageChat;
-    });
+    return (
+      this.storedMessages
+        // reverse to get the latest messages first
+        .reduce((acc, curr) => [curr, ...acc], [] as MessageStored[])
+        .slice(offset, offset + limit)
+        .map((message) => {
+          const user = this.storedUsers.get(message.userId);
+          return {
+            ...message,
+            user,
+          } satisfies MessageChat;
+        })
+    );
   }
 
   /**
