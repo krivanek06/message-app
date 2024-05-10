@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { catchError, delay, map, of, startWith, tap } from 'rxjs';
+import { MessageChat } from '@shared-types';
+import { Subject, catchError, delay, map, of, scan, startWith, switchMap } from 'rxjs';
 import { ChatWebSocket, MessageApiService } from '../../../api';
 import { AuthenticationService } from '../../../authentication';
 import {
@@ -20,6 +21,7 @@ import {
     <!-- chat messages -->
     <div
       appScrollNearEnd
+      (nearEnd)="onNearEndEmit()"
       class="px-4 py-6 border-gray-300 h-full rounded-lg border-2 overflow-scroll flex flex-col-reverse gap-y-6"
     >
       <!-- input message -->
@@ -37,33 +39,34 @@ import {
       </div>
 
       <!-- messages wrapper -->
-      @if (!displayedMessages().loading) {
-        @for (item of displayedMessages().data; track item.messageId) {
-          <div class="flex items-start gap-3">
-            <!-- user -->
-            <img appDefaultImg alt="user image" [src]="item.user.imageUrl" class="w-8 h-8 rounded-full" />
 
-            <div
-              class="w-9/12 p-4 rounded-tr-3xl rounded-br-3xl rounded-bl-3xl"
-              [style.background-color]="item.user.color"
-            >
-              <!-- messages metadata -->
-              <div class="flex justify-between mb-2">
-                <span class="font-bold"> {{ item.user.username }} </span>
-                <span> {{ item.timestamp | date: 'HH:mm, MMMM d, y' }} </span>
-              </div>
-              <!-- messages -->
-              <div>
-                {{ item.content }}
-              </div>
+      @for (item of displayedMessages().data; track item.messageId) {
+        <div class="flex items-start gap-3">
+          <!-- user -->
+          <img appDefaultImg alt="user image" [src]="item.user?.imageUrl" class="w-8 h-8 rounded-full" />
+
+          <div
+            class="w-9/12 p-4 rounded-tr-3xl rounded-br-3xl rounded-bl-3xl"
+            [style.background-color]="item.user?.color"
+          >
+            <!-- messages metadata -->
+            <div class="flex justify-between mb-2">
+              <span class="font-bold"> {{ item.user?.username }} </span>
+              <span> {{ item.timestamp | date: 'HH:mm, MMMM d, y' }} </span>
+            </div>
+            <!-- messages -->
+            <div>
+              {{ item.content }}
             </div>
           </div>
-        }
-      } @else {
-        <div
-          *ngRange="10"
-          class="g-skeleton min-h-[80px] w-9/12 rounded-tr-3xl rounded-br-3xl rounded-bl-3xl"
-        ></div>
+        </div>
+      }
+      <!-- display loading skeleton -->
+      @if (displayedMessages().loading) {
+        <div *ngRange="10" class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full g-skeleton"></div>
+          <div class="g-skeleton min-h-[80px] w-9/12 rounded-tr-3xl rounded-br-3xl rounded-bl-3xl"></div>
+        </div>
       }
     </div>
   `,
@@ -82,31 +85,48 @@ export class ChatFeatureComponent {
 
   authUser = this.authenticationService.authenticatedUserData;
 
+  /**
+   * subject to emit new scroll event
+   */
+  private newEndScrollEmit$ = new Subject<void>();
+
   displayedMessages = toSignal(
-    this.messageApiService.getMessagesAll(0).pipe(
-      delay(2000), // simulate loading
-      tap(console.log),
-      map((data) => ({
-        data,
-        loading: false,
-      })),
-      startWith({
-        data: [],
-        loading: true,
-      }),
-      catchError((err) => {
-        console.log(err);
-        this.dialogServiceUtil.showNotificationBar('Error loading messages', 'error');
-        return of({
-          data: [],
-          loading: false,
-        });
-      }),
+    this.newEndScrollEmit$.pipe(
+      startWith(null),
+      switchMap(() =>
+        this.messageApiService.getMessagesAll(0).pipe(
+          // stop loading
+          map((data) => ({ data, loading: false })),
+          // simulate loading
+          delay(2000),
+          catchError((err) => {
+            console.log(err);
+            this.dialogServiceUtil.showNotificationBar('Error loading messages', 'error');
+            return of({ data: [], loading: false });
+          }),
+          // show loading skeleton while loading data from API
+          startWith({ data: [], loading: true }),
+        ),
+      ),
+      // remember previous values and add new ones
+      scan(
+        (acc, curr) => ({
+          data: [...acc.data, ...curr.data],
+          loading: curr.loading,
+          offset: acc.offset + 1,
+        }),
+        {
+          data: [] as MessageChat[],
+          loading: true,
+          offset: 0,
+        },
+      ),
     ),
     {
       initialValue: {
-        data: [],
+        data: [] as MessageChat[],
         loading: true,
+        offset: 0,
       },
     },
   );
@@ -133,5 +153,9 @@ export class ChatFeatureComponent {
 
     // reset previous value
     this.messageControl.reset();
+  }
+
+  onNearEndEmit() {
+    this.newEndScrollEmit$.next();
   }
 }
