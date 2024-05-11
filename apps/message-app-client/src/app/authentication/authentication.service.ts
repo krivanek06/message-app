@@ -28,8 +28,13 @@ export class AuthenticationService extends StorageLocalStoreService<ApplicationU
     return this.authenticatedUser$.asObservable();
   }
 
-  setAuthenticatedUser(user: ApplicationUser | null) {
+  setAuthenticatedUser(user: ApplicationUser) {
     this.authenticatedUser$.next(user);
     this.saveData(user);
+  }
+
+  logout() {
+    this.authenticatedUser$.next(null);
+    this.removeData();
   }
 }

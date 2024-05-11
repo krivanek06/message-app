@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MAT_SNACK_BAR_DATA, MatSnackBarModule, MatSnackBarRef } from '@angular/material/snack-bar';
 
@@ -41,11 +41,8 @@ import { MAT_SNACK_BAR_DATA, MatSnackBarModule, MatSnackBarRef } from '@angular/
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotificationProgressComponent {
-  constructor(
-    @Inject(MAT_SNACK_BAR_DATA)
-    public data: { message: string; type: 'success' | 'error' | 'notification' },
-    private snackBarRef: MatSnackBarRef<NotificationProgressComponent>,
-  ) {}
+  public data = inject<{ message: string; type: 'success' | 'error' | 'notification' }>(MAT_SNACK_BAR_DATA);
+  private snackBarRef = inject(MatSnackBarRef<NotificationProgressComponent>);
 
   closeSnackbar(): void {
     this.snackBarRef.dismiss();

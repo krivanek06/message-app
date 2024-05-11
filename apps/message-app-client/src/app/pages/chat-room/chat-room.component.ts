@@ -62,7 +62,10 @@ export class ChatRoomComponent {
 
   searchedUserControl = new FormControl<ApplicationUser | null>(null);
 
-  onLogout() {
-    this.router.navigate(['']);
+  async onLogout() {
+    // wait to log out before clearing data
+    await this.router.navigate(['']);
+    // clear data
+    this.authenticationService.logout();
   }
 }
