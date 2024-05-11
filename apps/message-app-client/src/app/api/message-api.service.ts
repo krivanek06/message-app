@@ -9,11 +9,15 @@ import { environment } from '../../environments/environment';
 })
 export class MessageApiService {
   private http = inject(HttpClient);
-
-  // todo: when querying data - use scan because of pagination I want to remember last values
   getMessagesAll(offset: number): Observable<MessageChat[]> {
     return this.http
       .get<MessageChat[]>(`${environment.serverAPIEndpoint}/message/all?offset=${offset}`)
-      .pipe(tap((x) => console.log('getMessagesAll', x, offset)));
+      .pipe(tap((x) => console.log('MessageApiService: getMessagesAll offset:', x, offset)));
+  }
+
+  getMessagesAllByUserId(userId: string): Observable<MessageChat[]> {
+    return this.http.get<MessageChat[]>(
+      `${environment.serverAPIEndpoint}/message/all-by-userId?userId=${userId}`,
+    );
   }
 }

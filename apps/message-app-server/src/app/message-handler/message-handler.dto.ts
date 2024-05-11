@@ -33,3 +33,9 @@ export class MessageSearchDTO {
   })
   offset: number;
 }
+
+export class MessageSearchByUserIdDTO {
+  @IsNotEmpty()
+  @IsString()
+  userId: string;
+}

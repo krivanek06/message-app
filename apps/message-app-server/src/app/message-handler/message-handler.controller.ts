@@ -1,7 +1,7 @@
 import { BadRequestException, Controller, Get, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { MessageChat } from '@shared-types';
 import { AppDatabaseService } from '../database';
-import { MessageSearchDTO } from './message-handler.dto';
+import { MessageSearchByUserIdDTO, MessageSearchDTO } from './message-handler.dto';
 
 @Controller('message')
 export class MessageHandlerController {
@@ -16,5 +16,10 @@ export class MessageHandlerController {
   )
   async getMessagesAll(@Query() query: MessageSearchDTO): Promise<MessageChat[]> {
     return this.appDatabaseService.getMessages(query.offset, query.limit);
+  }
+
+  @Get('/all-by-userId')
+  async getMessagesByUserIdAll(@Query() query: MessageSearchByUserIdDTO): Promise<MessageChat[]> {
+    return this.appDatabaseService.getMessagesByUserId(query.userId);
   }
 }

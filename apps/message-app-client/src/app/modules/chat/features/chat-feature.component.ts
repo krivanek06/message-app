@@ -1,9 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MessageChat } from '@shared-types';
-import { Subject, catchError, combineLatest, delay, map, of, scan, startWith, switchMap } from 'rxjs';
+import { ApplicationUser, MessageChat } from '@shared-types';
+import {
+  Subject,
+  catchError,
+  combineLatest,
+  delay,
+  exhaustMap,
+  map,
+  of,
+  scan,
+  startWith,
+  switchMap,
+} from 'rxjs';
 import { ChatWebSocket, MessageApiService } from '../../../api';
 import { AuthenticationService } from '../../../authentication';
 import {
@@ -84,7 +95,10 @@ export class ChatFeatureComponent {
   private dialogServiceUtil = inject(DialogServiceUtil);
   private authenticationService = inject(AuthenticationService);
 
-  authUser = this.authenticationService.authenticatedUserData;
+  /**
+   * if user value is set, load all messages for that user
+   */
+  specificUserSelected = input<ApplicationUser | null>();
 
   /**
    * subject to emit new scroll event happens with how many items are displayed
@@ -96,12 +110,12 @@ export class ChatFeatureComponent {
    */
   private loadedMessages$ = this.scrollNewEndOffset$.pipe(
     startWith(0),
-    switchMap((offset) =>
+    exhaustMap((offset) =>
       this.messageApiService.getMessagesAll(offset).pipe(
         // stop loading
         map((data) => ({ data, loading: false })),
         // simulate loading
-        delay(2000),
+        delay(3000),
         catchError((err) => {
           console.log(err);
           this.dialogServiceUtil.showNotificationBar('Error loading messages', 'error');
@@ -130,13 +144,32 @@ export class ChatFeatureComponent {
   private newIncomingMessage$ = this.chatWebSocket.listenOnNewMessage().pipe(startWith([] as MessageChat[]));
 
   /**
+   * observable to load messages for specific user, or return null (user can have no messages)
+   */
+  private userLoadedMessages$ = toObservable(this.specificUserSelected).pipe(
+    switchMap((user) =>
+      !!user
+        ? this.messageApiService.getMessagesAllByUserId(user.userId).pipe(
+            catchError((err) => {
+              console.log(err);
+              this.dialogServiceUtil.showNotificationBar('Error loading messages', 'error');
+              return of([]);
+            }),
+          )
+        : of(null),
+    ),
+  );
+
+  /**
    * combine latest loaded messages and new incoming messages and display on UI
    */
   displayedMessages = toSignal(
-    combineLatest([this.loadedMessages$, this.newIncomingMessage$]).pipe(
-      map(([loaded, incoming]) => ({
-        data: [...incoming, ...loaded.data],
-        loading: loaded.loading,
+    combineLatest([this.loadedMessages$, this.newIncomingMessage$, this.userLoadedMessages$]).pipe(
+      map(([loaded, incoming, userMessages]) => ({
+        // if user messages are loaded, show only them
+        data: !userMessages ? [...incoming, ...loaded.data] : [...userMessages],
+        // if user messages are loaded, do not show loading skeleton
+        loading: !userMessages ? loaded.loading : false,
       })),
     ),
     {
@@ -146,6 +179,8 @@ export class ChatFeatureComponent {
       },
     },
   );
+
+  authUser = this.authenticationService.authenticatedUserData;
 
   messageControl = new FormControl('', {
     validators: [Validators.required, Validators.minLength(1), Validators.maxLength(1000)],

@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, forwardRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, forwardRef, inject, model } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { ApplicationUser } from '@shared-types';
+import { ApplicationUserSearch } from '@shared-types';
 import { debounceTime, distinctUntilChanged, startWith, switchMap } from 'rxjs';
 import { UserApiService } from '../../../../api';
 import { UserItemComponent } from '../../components';
@@ -11,11 +12,10 @@ import { UserItemComponent } from '../../components';
 @Component({
   selector: 'app-user-search',
   standalone: true,
-  imports: [CommonModule, UserItemComponent, MatIconModule, ReactiveFormsModule],
+  imports: [CommonModule, UserItemComponent, ReactiveFormsModule, MatButtonModule, MatIconModule],
   template: `
     <!-- search input -->
     <div class="flex items-center gap-3">
-      <mat-icon class="text-sky-500">search</mat-icon>
       <input
         [formControl]="searchUserControl"
         type="text"
@@ -25,16 +25,30 @@ import { UserItemComponent } from '../../components';
     </div>
 
     <!-- results -->
-    <div class="mt-10 flex flex-col gap-y-3 pl-4">
-      @for (item of searchedUsers(); track item.userId) {
-        <div class="border-b border-gray-400 pb-1">
-          <app-user-item
-            (itemClicked)="onUserClick(item)"
-            [clickable]="true"
-            [userData]="item"
-            [lastMessage]="item.lastMessage"
-          />
+    <div class="mt-10 flex flex-col gap-y-3 pl-2">
+      @if (selectedUser(); as selectedUser) {
+        <!-- selected results -->
+        <div class="border border-gray-600 py-2  bg-gray-600 rounded-lg">
+          <app-user-item [userData]="selectedUser" [lastMessage]="selectedUser.lastMessage" />
         </div>
+
+        <!-- cancel selection -->
+        <button mat-stroked-button type="button" (click)="onUserClick(null)">
+          <mat-icon class="text-gray-500">cancel</mat-icon>
+          <span class="text-gray-400">cancel selection</span>
+        </button>
+      } @else {
+        <!-- search results -->
+        @for (item of searchedUsers(); track item.userId) {
+          <div class="border-b border-gray-600 pb-1">
+            <app-user-item
+              (itemClicked)="onUserClick(item)"
+              [clickable]="true"
+              [userData]="item"
+              [lastMessage]="item.lastMessage"
+            />
+          </div>
+        }
       }
     </div>
   `,
@@ -53,6 +67,7 @@ import { UserItemComponent } from '../../components';
   ],
 })
 export class UserSearchComponent implements ControlValueAccessor {
+  [x: string]: any;
   private userApiService = inject(UserApiService);
 
   searchUserControl = new FormControl('', { nonNullable: true });
@@ -71,12 +86,25 @@ export class UserSearchComponent implements ControlValueAccessor {
     },
   );
 
-  onChange: (value: ApplicationUser) => void = () => {};
+  /**
+   * if user selected somebody, save value here
+   */
+  selectedUser = model<ApplicationUserSearch | null>(null);
+
+  onChange: (value: ApplicationUserSearch | null) => void = () => {};
   onTouched = () => {};
 
-  onUserClick(user: ApplicationUser) {
-    console.log('UserSearchComponent -> onUserClick -> user', user);
+  onUserClick(user: ApplicationUserSearch | null) {
     this.onChange(user);
+    this.selectedUser.set(user);
+
+    if (user) {
+      // disable search
+      this.searchUserControl.disable();
+    } else {
+      this.searchUserControl.enable();
+      this.searchUserControl.patchValue('');
+    }
   }
 
   // ignore write from parent

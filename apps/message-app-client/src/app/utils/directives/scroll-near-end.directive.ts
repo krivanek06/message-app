@@ -1,10 +1,19 @@
-import { AfterViewInit, Directive, ElementRef, Renderer2, inject, input, output } from '@angular/core';
+import {
+  AfterViewInit,
+  Directive,
+  ElementRef,
+  OnDestroy,
+  Renderer2,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 
 @Directive({
   selector: '[appScrollNearEnd]',
   standalone: true,
 })
-export class ScrollNearEndDirective implements AfterViewInit {
+export class ScrollNearEndDirective implements AfterViewInit, OnDestroy {
   private el = inject(ElementRef<HTMLElement>);
   private renderer = inject(Renderer2);
 
@@ -13,15 +22,17 @@ export class ScrollNearEndDirective implements AfterViewInit {
   /**
    * threshold in PX when to emit before page end scroll
    */
-  threshold = input(100);
+  threshold = input(80);
 
   /**
    * if reverse true, then emit when scrolled to top
    */
   scrollReverse = input(false);
 
+  private listenerRef!: () => void;
+
   ngAfterViewInit(): void {
-    this.renderer.listen(this.el.nativeElement, 'scroll', (e) => {
+    this.listenerRef = this.renderer.listen(this.el.nativeElement, 'scroll', (e) => {
       const element = e?.target as HTMLElement;
 
       if (this.scrollReverse()) {
@@ -30,6 +41,11 @@ export class ScrollNearEndDirective implements AfterViewInit {
         this.monitorScrollToBottom(element);
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    // remove listener
+    this.listenerRef();
   }
 
   private monitorScrollToTop(el: HTMLElement) {

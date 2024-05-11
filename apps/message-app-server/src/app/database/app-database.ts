@@ -70,6 +70,23 @@ export class AppDatabaseService {
 
   /**
    *
+   * @param userId - user ID to get messages for
+   * @returns - list of all messages for the user
+   */
+  async getMessagesByUserId(userId: string): Promise<MessageChat[]> {
+    return this.storedMessages
+      .filter((message) => message.userId === userId)
+      .map((message) => {
+        const user = this.storedUsers.get(message.userId);
+        return {
+          ...message,
+          user,
+        } satisfies MessageChat;
+      });
+  }
+
+  /**
+   *
    * @param user - user to add into the DB
    * @returns - created user in the DB
    */

@@ -25,6 +25,12 @@ button[disabled] {
   background-color: var(--disable-color);
 }
 
+input[disabled] {
+  pointer-events: none;
+  opacity: 0.7;
+  background-color: var(--disable-color);
+}
+
 .g-skeleton {
   @apply animate-pulse;
   background-color: var(--disable-color) !important;

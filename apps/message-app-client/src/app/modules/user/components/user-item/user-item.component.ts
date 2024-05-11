@@ -28,7 +28,7 @@ import { ClickableDirective, DefaultImgDirective } from '../../../../utils';
 
         <!-- last message -->
         @if (lastMessage(); as lastMessage) {
-          <div class="line-clamp-2 text-gray-800">
+          <div class="line-clamp-2 text-gray-400">
             {{ lastMessage.content }}
           </div>
         }
