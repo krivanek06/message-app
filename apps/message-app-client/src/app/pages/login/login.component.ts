@@ -37,7 +37,7 @@ import { UsernameValidation } from '../../utils/validation';
           </button>
         </div>
 
-        <!-- pending state -->
+        <!-- pending state & trigger CD -->
         @if (usernameControl.statusChanges | async) {
           @if (usernameControl.pending) {
             <div class="text-gray-500 text-sm">Checking username...</div>

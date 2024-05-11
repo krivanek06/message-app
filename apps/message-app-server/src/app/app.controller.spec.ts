@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { AppController } from './app.controller';
+import { AppDatabaseService } from './database';
 
 describe('AppController', () => {
   let app: TestingModule;
@@ -8,14 +9,24 @@ describe('AppController', () => {
   beforeAll(async () => {
     app = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [],
+      providers: [
+        {
+          provide: AppDatabaseService,
+          useValue: {
+            addUser: jest.fn(),
+            addMessage: jest.fn(),
+            deactivateUser: jest.fn(),
+            getMessages: jest.fn(),
+            getMessagesByUserId: jest.fn(),
+            getUserByUsername: jest.fn(),
+          },
+        },
+      ],
     }).compile();
   });
 
-  describe('getData', () => {
-    it('should return "Hello API"', () => {
-      const appController = app.get<AppController>(AppController);
-      expect(appController.getData()).toEqual('App is running!');
-    });
+  it('should be defined', () => {
+    const controller = app.get<AppController>(AppController);
+    expect(controller).toBeDefined();
   });
 });

@@ -30,10 +30,10 @@ export class MessageListenerService implements OnModuleInit {
   @SubscribeMessage('leaveChat')
   async onUserLeftChat(@MessageBody() appUser: ApplicationUserDTO) {
     // add user to the DB
-    const newUser = await this.appDatabaseService.deactivateUser(appUser.userId);
+    await this.appDatabaseService.deactivateUser(appUser.userId);
 
     // notify all clients
-    this.server.emit('onUser', newUser);
+    this.server.emit('onUser', appUser);
   }
 
   @SubscribeMessage('newMessage')
