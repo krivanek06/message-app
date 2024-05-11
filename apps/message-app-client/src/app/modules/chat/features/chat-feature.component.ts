@@ -141,7 +141,10 @@ export class ChatFeatureComponent {
   /**
    * observable to listen on new incoming messages
    */
-  private newIncomingMessage$ = this.chatWebSocket.listenOnNewMessage().pipe(startWith([] as MessageChat[]));
+  private newIncomingMessage$ = this.chatWebSocket.listenOnNewMessage().pipe(
+    startWith([] as MessageChat[]),
+    scan((acc, curr) => [...curr, ...acc], [] as MessageChat[]),
+  );
 
   /**
    * observable to load messages for specific user, or return null (user can have no messages)

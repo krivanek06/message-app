@@ -67,7 +67,6 @@ import { UserItemComponent } from '../../components';
   ],
 })
 export class UserSearchComponent implements ControlValueAccessor {
-  [x: string]: any;
   private userApiService = inject(UserApiService);
 
   searchUserControl = new FormControl('', { nonNullable: true });
