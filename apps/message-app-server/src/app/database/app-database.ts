@@ -165,8 +165,10 @@ export class AppDatabaseService {
             ...user,
             lastMessage: this.storedMessages
               .filter((message) => message.userId === user.userId)
-              .sort((a, b) => b.timestamp - a.timestamp)[0],
+              .sort((a, b) => b.timestamp - a.timestamp)
+              .at(0),
           }) satisfies ApplicationUserSearch,
-      );
+      )
+      .slice(0, 10);
   }
 }

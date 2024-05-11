@@ -18,7 +18,6 @@ export class UserHandlerController {
 
   @Post('/')
   createUser(@Body() createUser: ApplicationUserCreateDTO) {
-    console.log('createUser', createUser);
     return this.appDatabaseService.addUser(createUser);
   }
 }

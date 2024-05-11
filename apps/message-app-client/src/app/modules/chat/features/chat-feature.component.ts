@@ -165,11 +165,11 @@ export class ChatFeatureComponent {
    */
   displayedMessages = toSignal(
     combineLatest([this.loadedMessages$, this.newIncomingMessage$, this.userLoadedMessages$]).pipe(
-      map(([loaded, incoming, userMessages]) => ({
+      map(([loadedMessages, incomingMessages, userMessages]) => ({
         // if user messages are loaded, show only them
-        data: !userMessages ? [...incoming, ...loaded.data] : [...userMessages],
+        data: !userMessages ? [...incomingMessages, ...loadedMessages.data] : [...userMessages],
         // if user messages are loaded, do not show loading skeleton
-        loading: !userMessages ? loaded.loading : false,
+        loading: !userMessages ? loadedMessages.loading : false,
       })),
     ),
     {

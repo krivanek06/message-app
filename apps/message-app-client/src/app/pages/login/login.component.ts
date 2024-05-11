@@ -7,6 +7,7 @@ import { Subject, catchError, delay, map, of, startWith, switchMap, tap } from '
 import { UserApiService } from '../../api';
 import { AuthenticationService } from '../../authentication';
 import { DialogServiceUtil } from '../../utils';
+import { UsernameValidation } from '../../utils/validation';
 
 @Component({
   selector: 'app-login',
@@ -28,13 +29,21 @@ import { DialogServiceUtil } from '../../utils';
           <!-- submit button -->
           <button
             (click)="onFormSubmit()"
-            [disabled]="isLoading()"
+            [disabled]="isLoading() || usernameControl.pending || usernameControl.invalid"
             type="button"
             class="bg-sky-300 hover:bg-sky-400 focus-within:bg-sky-400 text-white text-xl rounded-md min-w-[200px] max-w-[320px]"
           >
             Login
           </button>
         </div>
+
+        <!-- pending state -->
+        @if (usernameControl.statusChanges | async) {
+          @if (usernameControl.pending) {
+            <div class="text-gray-500 text-sm">Checking username...</div>
+          }
+        }
+
         <!-- errors -->
         @if (usernameControl.invalid && usernameControl.touched) {
           @if (usernameControl.errors?.['required']) {
@@ -45,6 +54,9 @@ import { DialogServiceUtil } from '../../utils';
           }
           @if (usernameControl.errors?.['maxlength']) {
             <div class="text-red-500 text-sm">Username must be at most 20 characters</div>
+          }
+          @if (usernameControl.errors?.['usernameTaken']) {
+            <div class="text-red-500 text-sm">Username is already taken</div>
           }
         }
       </div>
@@ -62,19 +74,17 @@ export class LoginComponent {
   private userApiService = inject(UserApiService);
   private dialogServiceUtil = inject(DialogServiceUtil);
   private router = inject(Router);
+  private usernameValidation = inject(UsernameValidation);
 
   private createNewUserSubject$ = new Subject<string>();
-
-  // todo: async call to check if username is available
 
   isLoading = toSignal(
     this.createNewUserSubject$.pipe(
       tap(() => this.dialogServiceUtil.showNotificationBar('Creating user...')),
       switchMap((userData) =>
         this.userApiService.createUser(userData).pipe(
-          delay(2000), // Simulate network delay
+          delay(2500), // Simulate network delay
           tap((user) => {
-            console.log('user', user);
             // show notification
             this.dialogServiceUtil.showNotificationBar('User created', 'success');
 
@@ -99,6 +109,7 @@ export class LoginComponent {
 
   usernameControl = new FormControl('', {
     validators: [Validators.required, Validators.minLength(5), Validators.maxLength(20)],
+    asyncValidators: [this.usernameValidation.validate.bind(this.usernameValidation)],
     nonNullable: true,
   });
 

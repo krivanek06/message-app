@@ -29,7 +29,7 @@ export class ChatWebSocket extends Socket {
 
   listenOnNewMessage(): Observable<MessageChat[]> {
     return this.fromEvent<MessageChat>('onMessage').pipe(
-      tap((x) => console.log('onMessage', x)),
+      tap((x) => console.log('ChatWebSocket: onMessage', x)),
       // buffer messages for 1 second - to avoid spamming
       bufferTime(500),
       filter((x) => x.length > 0),
