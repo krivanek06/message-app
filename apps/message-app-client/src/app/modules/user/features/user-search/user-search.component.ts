@@ -1,3 +1,4 @@
+import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, forwardRef, inject, model } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -44,17 +45,19 @@ import { UserItemComponent } from '../../components';
         </button>
       } @else {
         <!-- search results -->
-        @for (item of searchedUsers(); track item.userId) {
-          <div class="border-b border-gray-600 pb-1">
-            <app-user-item
-              data-testid="user-search-user-item"
-              (itemClicked)="onUserClick(item)"
-              [clickable]="true"
-              [userData]="item"
-              [lastMessage]="item.lastMessage"
-            />
-          </div>
-        }
+        <div [@showItem]="searchedUsers().length">
+          @for (item of searchedUsers(); track item.userId) {
+            <div class="border-b border-gray-600 pb-1">
+              <app-user-item
+                data-testid="user-search-user-item"
+                (itemClicked)="onUserClick(item)"
+                [clickable]="true"
+                [userData]="item"
+                [lastMessage]="item.lastMessage"
+              />
+            </div>
+          }
+        </div>
       }
     </div>
   `,
@@ -70,6 +73,25 @@ import { UserItemComponent } from '../../components';
       useExisting: forwardRef(() => UserSearchComponent),
       multi: true,
     },
+  ],
+  animations: [
+    trigger('showItem', [
+      transition('* => *', [
+        query(
+          ':enter',
+          [
+            style({ opacity: 0, transform: 'translateX(-100px)' }),
+            stagger(200, [animate('500ms ease-in', style({ opacity: 1, transform: 'translateX(0px)' }))]),
+          ],
+          {
+            optional: true,
+          },
+        ),
+        query(':leave', [stagger(100, [animate('200ms', style({ opacity: 0 }))])], {
+          optional: true,
+        }),
+      ]),
+    ]),
   ],
 })
 export class UserSearchComponent implements ControlValueAccessor {
