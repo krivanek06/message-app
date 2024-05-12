@@ -15,5 +15,5 @@ import { AuthenticationService } from './authentication';
 })
 export class AppComponent {
   // injected service to inicialize - load data from local storage
-  private AuthenticationService = inject(AuthenticationService);
+  authenticationService = inject(AuthenticationService);
 }

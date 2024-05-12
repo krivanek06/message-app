@@ -80,6 +80,7 @@
     "jest-environment-node": "^29.4.1",
     "jest-preset-angular": "~14.0.4",
     "jest-when": "^3.6.0",
+    "ng-mocks": "^14.12.2",
     "nx": "19.0.1",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",

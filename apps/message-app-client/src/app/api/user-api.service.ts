@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { faker } from '@faker-js/faker';
 import { ApplicationUser, ApplicationUserCreate, ApplicationUserSearch } from '@shared-types';
-import { Observable } from 'rxjs';
+import { Observable, delay } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -16,7 +16,9 @@ export class UserApiService {
       username,
       imageUrl: faker.image.avatar(),
     } satisfies ApplicationUserCreate;
-    return this.http.post<ApplicationUser>(`${environment.serverAPIEndpoint}/user`, data);
+    return this.http.post<ApplicationUser>(`${environment.serverAPIEndpoint}/user`, data).pipe(
+      delay(2500), // Simulate network delay
+    );
   }
 
   getLastActiveUsers() {

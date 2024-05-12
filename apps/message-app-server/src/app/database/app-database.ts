@@ -139,7 +139,7 @@ export class AppDatabaseService {
     return Array.from(this.storedUsers.values())
       .filter((user) => user.isActive)
       .sort((a, b) => b.lastActiveTimestamp - a.lastActiveTimestamp)
-      .slice(0, 10)
+      .slice(0, 8)
       .map(
         (user) =>
           ({
@@ -169,6 +169,6 @@ export class AppDatabaseService {
               .at(0),
           }) satisfies ApplicationUserSearch,
       )
-      .slice(0, 10);
+      .slice(0, 8);
   }
 }

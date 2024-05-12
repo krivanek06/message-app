@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture } from '@angular/core/testing';
+import { MockBuilder, MockRender } from 'ng-mocks';
 import { ChatFeatureComponent } from './chat-feature.component';
 
 describe('ChatFeatureComponent', () => {
@@ -6,11 +7,10 @@ describe('ChatFeatureComponent', () => {
   let fixture: ComponentFixture<ChatFeatureComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ChatFeatureComponent],
-    }).compileComponents();
+    MockBuilder(ChatFeatureComponent);
 
-    fixture = TestBed.createComponent(ChatFeatureComponent);
+    fixture = MockRender(ChatFeatureComponent);
+
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

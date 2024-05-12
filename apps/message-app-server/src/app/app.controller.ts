@@ -17,7 +17,7 @@ export class AppController implements OnModuleInit {
     // create N random users
     const appUsers: ApplicationUser[] = [];
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
       const data = {
         username: faker.internet.userName(),
         imageUrl: faker.image.avatar(),
@@ -44,7 +44,7 @@ export class AppController implements OnModuleInit {
     }
 
     // deactivating some users
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 7; i++) {
       await this.appDatabaseService.deactivateUser(appUsers[i].userId);
     }
 

@@ -19,6 +19,7 @@ import { ClickableDirective, DefaultImgDirective } from '../../../../utils';
           <div [style.color]="userData().color">{{ userData().username }}</div>
           <div
             class="w-3 h-3 rounded-full"
+            data-testid="user-item-status"
             [ngClass]="{
               'bg-green-500': userData().isActive,
               'bg-red-500': !userData().isActive
@@ -27,11 +28,9 @@ import { ClickableDirective, DefaultImgDirective } from '../../../../utils';
         </div>
 
         <!-- last message -->
-        @if (lastMessage(); as lastMessage) {
-          <div class="line-clamp-2 text-gray-400">
-            {{ lastMessage.content }}
-          </div>
-        }
+        <div class="line-clamp-2 text-gray-400" data-testid="user-item-content">
+          {{ lastMessage()?.content }}
+        </div>
       </div>
     </div>
   `,

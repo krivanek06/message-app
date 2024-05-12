@@ -64,7 +64,7 @@ export class ChatRoomComponent {
 
   async onLogout() {
     // wait to log out before clearing data
-    await this.router.navigate(['']);
+    await this.router.navigate(['/']);
     // clear data
     this.authenticationService.logout();
   }

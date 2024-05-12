@@ -5,7 +5,7 @@ import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModu
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ApplicationUserSearch } from '@shared-types';
-import { debounceTime, distinctUntilChanged, startWith, switchMap } from 'rxjs';
+import { EMPTY, catchError, debounceTime, distinctUntilChanged, startWith, switchMap } from 'rxjs';
 import { UserApiService } from '../../../../api';
 import { UserItemComponent } from '../../components';
 
@@ -17,6 +17,7 @@ import { UserItemComponent } from '../../components';
     <!-- search input -->
     <div class="flex items-center gap-3">
       <input
+        data-testid="user-search-input"
         [formControl]="searchUserControl"
         type="text"
         placeholder="Search user"
@@ -29,7 +30,11 @@ import { UserItemComponent } from '../../components';
       @if (selectedUser(); as selectedUser) {
         <!-- selected results -->
         <div class="border border-gray-600 py-2  bg-gray-600 rounded-lg">
-          <app-user-item [userData]="selectedUser" [lastMessage]="selectedUser.lastMessage" />
+          <app-user-item
+            data-testid="user-search-user-selected"
+            [userData]="selectedUser"
+            [lastMessage]="selectedUser.lastMessage"
+          />
         </div>
 
         <!-- cancel selection -->
@@ -42,6 +47,7 @@ import { UserItemComponent } from '../../components';
         @for (item of searchedUsers(); track item.userId) {
           <div class="border-b border-gray-600 pb-1">
             <app-user-item
+              data-testid="user-search-user-item"
               (itemClicked)="onUserClick(item)"
               [clickable]="true"
               [userData]="item"
@@ -79,6 +85,7 @@ export class UserSearchComponent implements ControlValueAccessor {
       switchMap((search) =>
         search ? this.userApiService.getUsersByUsername(search) : this.userApiService.getLastActiveUsers(),
       ),
+      catchError(() => EMPTY),
     ),
     {
       initialValue: [],

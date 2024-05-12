@@ -3,18 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApplicationUser, MessageChat } from '@shared-types';
-import {
-  Subject,
-  catchError,
-  combineLatest,
-  delay,
-  exhaustMap,
-  map,
-  of,
-  scan,
-  startWith,
-  switchMap,
-} from 'rxjs';
+import { Subject, catchError, combineLatest, exhaustMap, map, of, scan, startWith, switchMap } from 'rxjs';
 import { ChatWebSocket, MessageApiService } from '../../../api';
 import { AuthenticationService } from '../../../authentication';
 import {
@@ -114,8 +103,6 @@ export class ChatFeatureComponent {
       this.messageApiService.getMessagesAll(offset).pipe(
         // stop loading
         map((data) => ({ data, loading: false })),
-        // simulate loading
-        delay(3000),
         catchError((err) => {
           console.log(err);
           this.dialogServiceUtil.showNotificationBar('Error loading messages', 'error');
