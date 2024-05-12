@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ApplicationUserSearch } from '@shared-types';
 import { MockProvider, ngMocks } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -17,7 +18,7 @@ describe('UserSearchComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UserSearchComponent, ReactiveFormsModule],
+      imports: [UserSearchComponent, ReactiveFormsModule, NoopAnimationsModule],
       providers: [MockProvider(UserApiService)],
     }).compileComponents();
 
