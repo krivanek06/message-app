@@ -76,6 +76,7 @@ export class AppDatabaseService {
   async getMessagesByUserId(userId: string): Promise<MessageChat[]> {
     return this.storedMessages
       .filter((message) => message.userId === userId)
+      .reduce((acc, curr) => [curr, ...acc], [] as MessageStored[])
       .map((message) => {
         const user = this.storedUsers.get(message.userId);
         return {
@@ -146,7 +147,8 @@ export class AppDatabaseService {
             ...user,
             lastMessage: this.storedMessages
               .filter((message) => message.userId === user.userId)
-              .sort((a, b) => b.timestamp - a.timestamp)[0],
+              .reduce((acc, curr) => [curr, ...acc], [] as MessageStored[])
+              .at(0),
           }) satisfies ApplicationUserSearch,
       );
   }
@@ -165,7 +167,7 @@ export class AppDatabaseService {
             ...user,
             lastMessage: this.storedMessages
               .filter((message) => message.userId === user.userId)
-              .sort((a, b) => b.timestamp - a.timestamp)
+              .reduce((acc, curr) => [curr, ...acc], [] as MessageStored[])
               .at(0),
           }) satisfies ApplicationUserSearch,
       )
