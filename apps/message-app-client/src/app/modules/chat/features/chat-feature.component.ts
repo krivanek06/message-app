@@ -3,7 +3,19 @@ import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApplicationUser, MessageChat } from '@shared-types';
-import { Subject, catchError, combineLatest, exhaustMap, map, of, scan, startWith, switchMap } from 'rxjs';
+import {
+  EMPTY,
+  Subject,
+  catchError,
+  combineLatest,
+  exhaustMap,
+  expand,
+  map,
+  of,
+  scan,
+  startWith,
+  switchMap,
+} from 'rxjs';
 import { ChatWebSocket, MessageApiService } from '../../../api';
 import { AuthenticationService } from '../../../authentication';
 import {
@@ -101,6 +113,8 @@ export class ChatFeatureComponent {
     startWith(0),
     exhaustMap((offset) =>
       this.messageApiService.getMessagesAll(offset).pipe(
+        // load more messages if there are more
+        expand((_, index) => (index === 0 ? this.messageApiService.getMessagesAll(offset + 20) : EMPTY)),
         // stop loading
         map((data) => ({ data, loading: false })),
         catchError((err) => {
