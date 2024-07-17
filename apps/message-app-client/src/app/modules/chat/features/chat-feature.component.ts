@@ -116,16 +116,26 @@ export class ChatFeatureComponent {
         // load more messages if there are more
         expand((_, index) => (index === 0 ? this.messageApiService.getMessagesAll(offset + 20) : EMPTY)),
         // stop loading
-        map((data) => ({ data, loading: false })),
+        map((data) => ({ data, loading: false, isError: false })),
         catchError((err) => {
           console.log(err);
           this.dialogServiceUtil.showNotificationBar('Error loading messages', 'error');
-          return of({ data: [], loading: false });
+          return of({ data: [], loading: false, isError: false });
         }),
         // show loading skeleton while loading data from API
-        startWith({ data: [], loading: true }),
+        startWith({ data: [], loading: true, isError: true }),
       ),
     ),
+    expand((data, index) => {
+      // try reloading 3x if there is an error
+      if (data.isError && index < 3) {
+        return this.messageApiService.getMessagesAll(data.data.length).pipe(
+          map((data) => ({ data, loading: false, isError: false })),
+          catchError(() => of({ data: [], loading: false, isError: false })),
+        );
+      }
+      return EMPTY;
+    }),
     // remember previous values and add new ones
     scan(
       (acc, curr) => ({
